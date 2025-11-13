@@ -111,18 +111,23 @@ public class EnemyHealth : MonoBehaviour
         // Es el jefe final?
         if (isFinalBoss)
         {
-            Debug.Log("¡JEFE FINAL DERROTADO! Cargando escena de victoria...");
-            Time.timeScale = 1f; 
-            SceneManager.LoadScene(victorySceneName);
+            Debug.Log("¡JEFE FINAL DERROTADO! Iniciando secuencia final...");
 
-        
             if (useDeathAnimation && animator != null)
             {
                 animator.SetTrigger("death");
+                // ¡Iniciamos la corrutina para cargar la escena DESPUÉS!
+                StartCoroutine(LoadVictorySceneAfterDelay());
             }
-           
+            else
+            {
+                // Si no tiene animación, cargar al instante
+                Time.timeScale = 1f;
+                SceneManager.LoadScene(victorySceneName);
+            }
+
             Destroy(gameObject, destroyDelay);
-            return; 
+            return;
         }
 
 
@@ -158,5 +163,16 @@ public class EnemyHealth : MonoBehaviour
         spriteRenderer.color = Color.red;
         yield return new WaitForSeconds(0.1f);
         spriteRenderer.color = Color.white;
+    }
+
+    IEnumerator LoadVictorySceneAfterDelay()
+    {
+        // Espera el tiempo que dura la animación de muerte
+        yield return new WaitForSeconds(destroyDelay * 0.9f);
+
+        // Ahora, carga la escena de victoria
+        Debug.Log("Animación de muerte terminada. Cargando VictoryScene...");
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(victorySceneName);
     }
 }
